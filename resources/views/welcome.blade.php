@@ -21,14 +21,14 @@
                         </x-nav-button>
                     </a>
                 @else
-                    <a href="{{ route('login') }}" class="px-2 py-4 rounded hover:text-white hover:bg-teal-900">
+                    <a href="{{ route('login') }}" class="px-2 py-4 rounded">
                         <x-nav-button>
                             {{ __('Log in') }}
                         </x-nav-button>
                     </a>
 
                     @if (Route::has('register'))
-                        <a href="{{ route('register') }}" class="py-4 px-2 rounded hover:text-white hover:bg-teal-900">
+                        <a href="{{ route('register') }}" class="px-2 py-4 rounded">
                             <x-nav-button>
                                 {{ __('Register') }}
                             </x-nav-button>

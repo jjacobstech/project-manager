@@ -1,123 +1,86 @@
-<?php
+'user_id' => $user_id,
+'type' => $type,
+'project_img' => $project_img
+]);
 
-namespace App\Http\Controllers;
 
-use Exception;
-use App\Models\Project;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+Storage::put('/uploads/project_images', $project_img);
 
-class ProjectController extends Controller
+
+return to_route('dashboard')->with('message', 'successful');
+} catch (\Exception $e) {
+return $e->getMessage();
+}
+
+}
+
+/**
+* Display the specified resource.
+*/
+public function show(string $id)
 {
-      /**
-       * Display a listing of the resource.
-       */
-      public function index()
-      {
-            return view('project');
-      }
+$project = Project::where('id', '=', $id)->with('tasks')->first();
+if ($project === null) {
+abort(404);
+}
 
-      /**
-       * Show the form for creating a new resource.
-       */
-      public function create()
-      {
-            return view('project.create-project');
-      }
+return view('project.project', ['project' => $project]);
+}
 
+/**
+* Show the form for editing the specified resource.
+*/
+public function edit(string $id)
+{
+$project = Project::where('id', '=', $id)->first();
 
+return view('project.edit-project', ['project' => $project]);
+}
 
-
-      /**
-       * Store a newly created resource in storage.
-       */
-      public function store(Request $request)
-      {
-
-            $name = $request->project_name;
-            $description = $request->description;
-            $type = $request->type;
-            $user_id = Auth::id();
+/**
+* Update the specified resource in storage.
+*/
+public function complete(string $id)
+{
+$project = Project::where('id', '=', $id)->first();
 
 
-            $project = Project::create(attributes: [
-                  'name' => $name,
-                  'description' => $description,
-                  'user_id' => $user_id,
-                  'type' => $type
-            ]);
+$project = $project->update(attributes: [
+'status' => 'completed'
+]);
 
-            return to_route('dashboard')->with('message', 'successful');
+return to_route('project.show', ['project' => $id])->with('message', 'updated');
 
-      }
+}
 
-      /**
-       * Display the specified resource.
-       */
-      public function show(string $id)
-      {
-            $project = Project::where('id', '=', $id)->with('tasks')->first();
-            if ($project === null) {
-                  abort(404);
-            }
+public function update(Request $request, string $id)
+{
+$name = $request->project_name;
+$description = $request->description;
+$type = $request->type;
 
-            return view('project.project', ['project' => $project]);
-      }
+$project = Project::where('id', '=', $id)->first();
 
-      /**
-       * Show the form for editing the specified resource.
-       */
-      public function edit(string $id)
-      {
-            $project = Project::where('id', '=', $id)->first();
+$project = $project->update(attributes: [
+'name' => $name,
+'description' => $description,
+'type' => $type
+]);
 
-            return view('project.edit-project', ['project' => $project]);
-      }
+return to_route('project.show', ['project' => $id])->with('message', 'updated');
 
-      /**
-       * Update the specified resource in storage.
-       */
-      public function complete(string $id)
-      {
-            $project = Project::where('id', '=', $id)->first();
+}
+
+/**
+* Remove the specified resource from storage.
+*/
+public function delete(string $id)
+{
+$project = Project::where('id', '=', $id)->first();
 
 
-            $project = $project->update(attributes: [
-                  'status' => 'completed'
-            ]);
+$project = $project->delete();
 
-            return to_route('project.show', ['project' => $id])->with('message', 'updated');
-
-      }
-
-      public function update(Request $request, string $id)
-      {
-            $name = $request->project_name;
-            $description = $request->description;
-            $type = $request->type;
-
-            $project = Project::where('id', '=', $id)->first();
-
-            $project = $project->update(attributes: [
-                  'name' => $name,
-                  'description' => $description,
-                  'type' => $type
-            ]);
-
-            return to_route('project.show', ['project' => $id])->with('message', 'updated');
-
-      }
-
-      /**
-       * Remove the specified resource from storage.
-       */
-      public function delete(string $id)
-      {
-            $project = Project::where('id', '=', $id)->first();
-
-
-            $project = $project->delete();
-
-            return to_route('dashboard');
-      }
+return to_route('dashboard');
+}
 }

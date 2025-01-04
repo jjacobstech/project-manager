@@ -1,4 +1,9 @@
 @session('project_id')
+    @isset($message)
+        {{ $message }}
+    @endisset
+
+    @endif
 @endsession
 <x-app-layout>
     <x-slot name="header">
@@ -17,7 +22,7 @@
     </x-slot>
     <div class="flex justify-center w-full ">
         <div
-            class="justify-center w-full px-6 py-4 mt-10 overflow-hidden bg-teal-900 shadow-md sm:max-w-md dark:bg-gray-800 sm:rounded-lg">
+            class="justify-center w-full px-6 py-4 mt-3 overflow-hidden bg-teal-900 shadow-md sm:max-w-md dark:bg-gray-800 sm:rounded-lg">
             <form class="space-y-4" method="POST" action="{{ route('task.store') }}">
                 @csrf
                 <div>

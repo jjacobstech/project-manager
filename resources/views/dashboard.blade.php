@@ -11,7 +11,8 @@
         </h2>
 
     </x-slot>
-    <div class="grid max-w-screen-xl grid-cols-8 gap-10 p-5 mx-auto sm:p-10 md:p-10 md:grid-cols-5 sm:grid-cols-2">
+    <div
+        class="grid max-w-screen-xl grid-cols-1 gap-10 p-5 mx-auto sm:p-10 md:p-10 grid-col-6 md:grid-cols-4 sm:grid-cols-2">
 
         @if (empty($projects))
             <div class="grid grid-cols-1 gap-10 md:grid-cols-3 sm:grid-cols-2">
@@ -24,5 +25,5 @@
             @endforeach
         @endif
     </div>
-
+    {{ Cache::put('Page', 'Home', 60) }}
 </x-app-layout>
