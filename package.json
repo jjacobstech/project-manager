@@ -17,6 +17,8 @@
         "vite": "^5.0"
     },
     "dependencies": {
-        "@tailwindcss/forms": "^0.5.9"
+        "@pspdfkit/nodejs": "^0.0.7",
+        "@tailwindcss/forms": "^0.5.9",
+        "pspdfkit": "^2024.8.1"
     }
 }

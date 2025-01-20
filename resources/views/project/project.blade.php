@@ -15,11 +15,6 @@
 
             </h2>
 
-            {{-- <h2
-                class="relative float-left text-xl font-semibold leading-tight text-gray-800 truncate dark:text-gray-200 ">
-                {{ __($project->type) }}
-
-            </h2> --}}
 
         </div>
         <div class="flex w-full">
@@ -79,7 +74,7 @@
 
                 @foreach ($project->tasks as $project->task)
                     <div class="w-full px-6 ">
-                        <div class="border">
+                        <div class="">
                             <p class="uppercase truncate border-0">{{ $project->task->name }}
                             </p>
 

@@ -14,14 +14,15 @@
         </div>
 
     </x-slot>
-    <div class="flex justify-center w-full ">
+    <div class="flex justify-center w-full pb-10 ">
         <div
             class="justify-center w-full px-6 py-4 mt-10 overflow-hidden bg-white shadow-md sm:max-w-md dark:bg-gray-800 sm:rounded-lg">
             <form class="space-y-4" method="POST" action="{{ route('project.update', ['project' => $project->id]) }}">
                 @csrf
                 @method('PATCH')
                 <div>
-                    <x-input-label for="project_name" :value="__('Project Title')" />
+                    <label for="type" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Project
+                        Name</label>
                     <x-text-input type="text" name="project_name" id="project_name"
                         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
                         placeholder="The Adams Project" value="{{ $project->name }}" required />
@@ -42,6 +43,15 @@
                         value="{{ $project->type }}"
                         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
                         required />
+                </div>
+                <div>
+
+                    <label for="image" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Project
+                        image</label>
+                    <img class="w-20 h-20 mb-3 " src="{{ asset('uploads/project_images/' . $project->project_img) }}"
+                        alt="">
+                    <input type="file" name="project_img" id="description"
+                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white">
                 </div>
 
                 <div class="mt-3">

@@ -12,6 +12,7 @@ export default {
             "./vendor/wireui/wireui/ts/**/*.ts",
             "./vendor/wireui/wireui/src/WireUi/**/*.php",
             "./vendor/wireui/wireui/src/Components/**/*.php",
+            "./resources/views/**/*.blade.php"
       ],
       darkMode: "class",
       theme: {

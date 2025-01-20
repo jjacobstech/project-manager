@@ -2,16 +2,20 @@
     <a href="{{ route('project.show', ['project' => $project->id]) }}"></a>
     <div class="relative">
         <a href="{{ route('project.show', ['project' => $project->id]) }}">
-            <img class="w-auto" src="{{ asset('rb_1741.png') }}" alt="project">
+            @if ($project->project_img == null)
+                <img class="object-cover h-48 w-96" src="{{ asset('rb_1741.png') }}" alt="project">
+            @else
+                <img class="object-fill h-48 w-96" src="{{ asset('uploads/project_images/' . $project->project_img) }}"
+                    alt="project">
+            @endif
             <div
                 class="absolute top-0 bottom-0 left-0 right-0 transition duration-300 bg-gray-900 opacity-25 hover:bg-transparent">
             </div>
         </a>
-
         <a href="{{ route('project.show', ['project' => $project->id]) }}">
             <div
-                class="absolute top-0 right-0 flex flex-col items-center justify-center px-4 mt-3 mr-3 text-sm text-white transition duration-500 ease-in-out bg-white rounded-full w-11 h-11 hover:bg-white hover:text-black">
-                <span class="text-sm font-bold text-teal-900">
+                class="absolute top-0 right-0 flex flex-col items-center justify-center px-4 mt-3 mr-3 text-sm transition duration-500 ease-in-out bg-white rounded-full w-11 h-11 hover:bg-teal-900 hover:text-white">
+                <span class="text-sm font-bold">
                     <small>
                         {{ Str::title($project->status) }}
                     </small>

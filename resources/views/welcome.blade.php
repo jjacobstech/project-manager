@@ -6,6 +6,7 @@
     <link rel="stylesheet" href="{{ asset('build/assets/style.css') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="shortcut icon" href="{{ asset('app_logo.png') }}" type="image/x-icon">
+    <script src="{{ asset('assets/pspdfkit.js') }}"></script>
 </head>
 
 <body class="items-center justify-center w-screen min-h-screen bg-teal-900">
@@ -44,6 +45,7 @@
         <div class="inline-block p-6 bg-white rounded-full ">
             <img class="w-10" src="{{ asset('app_logo.png') }}" alt="logo" srcset="">
         </div>
+
         <h1 class="mt-6 text-4xl font-bold">TASKON</h1>
         <div class="flex items-center justify-center mt-2">
             <div class="w-16 border-t border-white"></div>
@@ -51,6 +53,9 @@
             <div class="w-16 border-t border-white"></div>
         </div>
     </div>
+    {{-- <div id="pspdfkit" style="width: 100%; height: 100vh; " class="bg-black"></div> --}}
+    {{-- <script src="{{ asset('index.js') }}"></script> --}}
+
 </body>
 <script src="{{ asset('build/assets/style.js') }}"></script>
 

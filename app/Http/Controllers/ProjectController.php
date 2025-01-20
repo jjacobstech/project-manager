@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Exception;
 use App\Models\Project;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -34,29 +35,34 @@ class ProjectController extends Controller
        */
       public function store(Request $request)
       {
+            // image upload
+            $project_img = $request->file('project_img');
+            $imgName = null;
+            if (!$project_img == null) {
+                  $imgExtension = $project_img->getClientOriginalExtension();
+                  $name = explode(' ', $request->project_name);
+                  $imgName = time() . Str::random(25) . '.' . $imgExtension;
 
+                  Storage::disk('custom')->putFileAs('project_images/', $project_img, $imgName, );
+            }
+
+            // project info
             $name = $request->project_name;
             $description = $request->description;
             $type = $request->type;
             $user_id = Auth::id();
-            $project_img = $request->project_img;
 
 
-            $project = Project::create(attributes: [
+
+            Project::create([
                   'name' => $name,
                   'description' => $description,
                   'user_id' => $user_id,
                   'type' => $type,
-                  'project_img' => $project_img
+                  'project_img' => $imgName
             ]);
 
-
-            Storage::put('/uploads/project_images', $project_img);
-
-
             return to_route('dashboard')->with('message', 'successful');
-
-
       }
 
       /**
@@ -94,25 +100,58 @@ class ProjectController extends Controller
                   'status' => 'completed'
             ]);
 
-            return to_route('project.show', ['project' => $id])->with('message', 'updated');
+            return to_route('dashboard', ['project' => $id])->with('message', 'updated');
 
       }
 
       public function update(Request $request, string $id)
       {
-            $name = $request->project_name;
-            $description = $request->description;
-            $type = $request->type;
 
             $project = Project::where('id', '=', $id)->first();
 
-            $project = $project->update(attributes: [
-                  'name' => $name,
-                  'description' => $description,
-                  'type' => $type
-            ]);
+            $id = $project->id;
+            $current_img = $project->project_img;
 
-            return to_route('project.show', ['project' => $id])->with('message', 'updated');
+            // image upload
+            $project_img = $request->file('project_img');
+            $imgName = null;
+
+
+            if (!$project_img == null) {
+                  $imgExtension = $project_img->getClientOriginalExtension();
+                  $name = explode(' ', $request->project_name);
+                  $imgName = time() . Str::random(25) . '.' . $imgExtension;
+
+                  $file_exist = Storage::disk('custom')->exists('project_images/' . $project_img);
+//     return $file_exist;
+                  // if ($file_exist) {
+                  //   let db = mongoose.connection    $delete = Storage::delete('project_images/' . $project_img);
+
+                  //       return $delete;
+
+                  //       Storage::disk('custom')->putFileAs('project_images/', $project_img, $imgName, );
+                  }
+return $file_exist;
+
+
+
+            // $name = $request->project_name;
+            // $description = $request->description;
+            // $type = $request->type;
+
+
+
+
+            // return $request->all();
+
+            // $project = $project->update(attributes: [
+            //       'name' => $name,
+            //       'description' => $description,
+            //       'type' => $type,
+            //       'project_img' => $imgName
+            // ]);
+
+            // return to_route('project.show', ['project' => $id])->with('message', 'updated');
 
       }
 

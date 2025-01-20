@@ -2,8 +2,6 @@
     @isset($message)
         {{ $message }}
     @endisset
-
-    @endif
 @endsession
 <x-app-layout>
     <x-slot name="header">
