@@ -43,11 +43,11 @@ class RegisteredUserController extends Controller
             $avatar = $request->file('avatar');
             $fileName = $avatar->getClientOriginalName();
             $fileExtension = $avatar->getClientOriginalExtension();
-            $name = explode(' ', $request->name);
+            $name = $request->name;
             $fileName = time() . uuid_create() . $name[0] . $name[1] . '.' . $fileExtension;
 
 
-            Storage::disk('custom')->putFileAs('avatar/', $avatar, $fileName, );
+            Storage::disk('custom')->putFileAs('avatar/', $avatar, $fileName,);
 
             $user = User::create([
                   'name' => $request->name,

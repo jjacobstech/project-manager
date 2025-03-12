@@ -1,19 +1,28 @@
 <?php
 
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\Mail\SendMailController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TaskController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Mail\SendMailController;
 
 Route::get('/', function () {
       return view('welcome');
 })->name('welcome');
 
+Route::get('/payment', [PaymentController::class, 'payment'])->name('payment');
+
+Route::get('/flutterwave', [PaymentController::class, 'flutterwave'])->name('flutterwave');
+
 Route::get('/sendmail', [SendMailController::class, 'sendmail'])->name('sendMail');
 
 Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::get('alpinejs', function () {
+      return view('alpinejs');
+});
 
 Route::middleware(['auth', 'verified'])->group(function () {
       Route::resource('project', ProjectController::class);
