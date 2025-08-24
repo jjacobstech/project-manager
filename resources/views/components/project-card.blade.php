@@ -9,7 +9,7 @@
                     alt="project">
             @endif
             <div
-                class="absolute top-0 bottom-0 left-0 right-0 transition duration-300 bg-gray-900 opacity-25 hover:bg-transparent">
+                class="absolute top-0 bottom-0 left-0 right-0 transition duration-300 bg-transparent opacity-25 hover:bg-gray-900">
             </div>
         </a>
         <a href="{{ route('project.show', ['project' => $project->id]) }}">

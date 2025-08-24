@@ -11,17 +11,18 @@
         </h2>
 
     </x-slot>
-    <div class="grid max-w-screen-xl gap-10 p-5 mx-auto sm:p-10 md:p-10 grid-col-6 md:grid-cols-4 sm:grid-cols-2">
 
         @if ($projects->isEmpty())
-            <div class="flex justify-center ">
-                <h1 class='w-full mt-40 ml-10 text-5xl font-bold text-center'>No Project</h1>
+            <div class="flex justify-center w-full ">
+                <h1 class='mt-40 text-5xl font-bold text-center'>No Project</h1>
             </div>
         @else
+            <div class="grid items-center max-w-screen-xl gap-10 p-5 mx-auto sm:p-10 md:p-10 grid-col-6 md:grid-cols-4 sm:grid-cols-2">
+
             @foreach ($projects as $project)
                 <x-project-card :$project wire:navigate />
             @endforeach
+      </div>
         @endif
-    </div>
 
 </x-app-layout>

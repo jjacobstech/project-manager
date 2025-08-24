@@ -28,10 +28,10 @@
                 {{-- <img class="w-6 h-6 mr-3 rounded-full " src="{{ asset('uploads/avatar/' . Auth::user()->avatar) }}"
                     alt="" sizes="" srcset=""> --}}
                 @if (!file_exists(asset('uploads/avatar/' . Auth::user()->avatar)))
-                    <img class="w-6 h-6 mr-3 rounded-full " src="{{ asset('uploads/avatar/' . Auth::user()->avatar) }}"
+                    <img class="w-10 h-10 mr-3 rounded-full " src="{{ asset('uploads/avatar/' . Auth::user()->avatar) }}"
                         alt="" sizes="" srcset="">
                 @else
-                    <img class="w-6 h-6 mr-3 rounded-full " src="{{ asset('app_logo.png') }}" alt=""
+                    <img class="w-10 h-10 mr-3 rounded-full " src="{{ asset('app_logo.png') }}" alt=""
                         sizes="" srcset="">
                 @endif
                 <x-dropdown align="right" width="48">
