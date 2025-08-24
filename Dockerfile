@@ -63,7 +63,18 @@ RUN useradd -ms /bin/bash --no-user-group -g $WWWGROUP -u 1337 sail
 
 COPY start-container /usr/local/bin/start-container
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-COPY php.ini /etc/php/8.4/cli/conf.d/99-sail.ini
+COPY php.ini /etc/php/8.4/cli/conf.d/99-sail.ini]
+
+# Copy application code
+COPY . /var/www/html
+
+# Set proper ownership and permissions
+RUN chown -R sail:sail /var/www/html \
+      && chmod -R 755 /var/www/html/storage \
+      && chmod -R 755 /var/www/html/bootstrap/cache
+
+# Install Composer dependencies
+RUN composer install --no-dev --optimize-autoloader
 RUN chmod +x /usr/local/bin/start-container
 
 EXPOSE 80/tcp
