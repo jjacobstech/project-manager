@@ -1,115 +1,68 @@
-# Multi-stage build optimized for Render
-FROM node:22-alpine AS asset-builder
-
-WORKDIR /app
-
-# Copy package files first for better Docker layer caching
-COPY package*.json ./
-
-# Install ALL dependencies (including dev dependencies for build)
-RUN npm ci
-
-# Copy source code
-COPY . .
-
-# Build assets
-RUN npm run build
-
-# Production stage
 FROM ubuntu:24.04
+
+LABEL maintainer="Taylor Otwell"
+
+ARG WWWGROUP
+ARG NODE_VERSION=22
+ARG MYSQL_CLIENT="mysql-client"
+ARG POSTGRES_VERSION=17
 
 WORKDIR /var/www/html
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=UTC
+ENV SUPERVISOR_PHP_COMMAND="/usr/bin/php -d variables_order=EGPCS /var/www/html/artisan serve --host=0.0.0.0 --port=10000"
+ENV SUPERVISOR_PHP_USER="sail"
 
-# Set timezone
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-# Install system dependencies
+RUN echo "Acquire::http::Pipeline-Depth 0;" > /etc/apt/apt.conf.d/99custom && \
+      echo "Acquire::http::No-Cache true;" >> /etc/apt/apt.conf.d/99custom && \
+      echo "Acquire::BrokenProxy    true;" >> /etc/apt/apt.conf.d/99custom
+
 RUN apt-get update && apt-get upgrade -y \
       && mkdir -p /etc/apt/keyrings \
-      && apt-get install -y \
-      gnupg \
-      curl \
-      ca-certificates \
-      nginx \
-      supervisor \
-      unzip \
-      libpng16-16 \
-      libzip4 \
-      libxml2 \
-      libpq5 \
-      libonig5 \
+      && apt-get install -y gnupg gosu curl ca-certificates zip unzip git supervisor sqlite3 libcap2-bin libpng-dev python3 dnsutils librsvg2-bin fswatch  \
       && curl -sS 'https://keyserver.ubuntu.com/pks/lookup?op=get&search=0xb8dc7e53946656efbce4c1dd71daeaab4ad4cab6' | gpg --dearmor | tee /etc/apt/keyrings/ppa_ondrej_php.gpg > /dev/null \
       && echo "deb [signed-by=/etc/apt/keyrings/ppa_ondrej_php.gpg] https://ppa.launchpadcontent.net/ondrej/php/ubuntu noble main" > /etc/apt/sources.list.d/ppa_ondrej_php.list \
       && apt-get update \
-      && apt-get install -y \
-      php8.4-fpm \
-      php8.4-cli \
-      php8.4-pgsql \
-      php8.4-mysql \
-      php8.4-gd \
-      php8.4-curl \
-      php8.4-mbstring \
-      php8.4-xml \
-      php8.4-zip \
-      php8.4-bcmath \
-      php8.4-intl \
-      php8.4-opcache \
+      && apt-get install -y php8.4-cli php8.4-dev \
+      php8.4-pgsql php8.4-sqlite3 php8.4-gd \
+      php8.4-curl php8.4-mongodb \
+      php8.4-imap php8.4-mysql php8.4-mbstring \
+      php8.4-xml php8.4-zip php8.4-bcmath php8.4-soap \
+      php8.4-intl php8.4-readline \
+      php8.4-ldap \
+      php8.4-msgpack php8.4-igbinary php8.4-redis \
+      php8.4-memcached php8.4-pcov  \
       && curl -sLS https://getcomposer.org/installer | php -- --install-dir=/usr/bin/ --filename=composer \
+      && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
+      && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_VERSION.x nodistro main" > /etc/apt/sources.list.d/nodesource.list \
+      && apt-get update \
+      && apt-get install -y nodejs \
+      && npm install -g npm \
+      && echo "deb [signed-by=/etc/apt/keyrings/yarn.gpg] https://dl.yarnpkg.com/debian/ stable main" > /etc/apt/sources.list.d/yarn.list \
+      && curl -sS https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor | tee /etc/apt/keyrings/pgdg.gpg >/dev/null \
+      && echo "deb [signed-by=/etc/apt/keyrings/pgdg.gpg] http://apt.postgresql.org/pub/repos/apt noble-pgdg main" > /etc/apt/sources.list.d/pgdg.list \
+      && apt-get update \
+      && apt-get install -y $MYSQL_CLIENT \
+      && apt-get -y autoremove \
       && apt-get clean \
       && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-# Create www-data user if it doesn't exist and set proper home directory
-RUN if ! id -u www-data >/dev/null 2>&1; then \
-      useradd -r -s /bin/false -d /var/www www-data; \
-      fi
+RUN setcap "cap_net_bind_service=+ep" /usr/bin/php8.4
 
-# Create necessary directories first
-RUN mkdir -p /var/www/html/storage/logs \
-      && mkdir -p /var/www/html/storage/framework/{cache,sessions,views} \
-      && mkdir -p /var/www/html/bootstrap/cache \
-      && mkdir -p /var/www/html/public/build
 
-# Copy composer files first for better layer caching
-COPY --chown=www-data:www-data composer.json composer.lock ./
+RUN userdel -r ubuntu
+RUN groupadd --force -g $WWWGROUP sail
+RUN useradd -ms /bin/bash --no-user-group -g $WWWGROUP -u 1337 sail
 
-# Install PHP dependencies before copying source code
-RUN composer install --no-dev --no-scripts --no-autoloader --optimize-autoloader --no-interaction --no-progress --prefer-dist
+COPY start-container /usr/local/bin/start-container
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY php.ini /etc/php/8.4/cli/conf.d/99-sail.ini
+RUN chmod +x /usr/local/bin/start-container
 
-# Copy application source code
-COPY --chown=www-data:www-data . .
+RUN composer install && npm install  && npm run build
+EXPOSE 80/tcp
 
-# Copy built assets from builder stage (only if build directory exists)
-COPY --from=asset-builder --chown=www-data:www-data /app/public/build ./public/build
-
-# Finalize composer installation with autoloader
-RUN composer dump-autoload --optimize --no-dev --classmap-authoritative
-
-# Set proper permissions
-RUN chown -R www-data:www-data /var/www/html \
-      && chmod -R 755 /var/www/html \
-      && chmod -R 775 /var/www/html/storage \
-      && chmod -R 775 /var/www/html/bootstrap/cache
-
-# Copy configuration files
-COPY docker/nginx.conf /etc/nginx/sites-available/default
-COPY docker/php.ini /etc/php/8.4/fpm/conf.d/99-laravel.ini
-COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-COPY docker/start-container.sh /usr/local/bin/start-container
-
-# Configure nginx
-RUN rm -f /etc/nginx/sites-enabled/default \
-      && ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/ \
-      && chmod +x /usr/local/bin/start-container \
-      && nginx -t
-
-# Expose port 8000 as default (Render will override with PORT env var)
-EXPOSE 8000
-
-# Health check for Render (use port 8000 as fallback)
-HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-      CMD curl -f http://localhost:${PORT:-8000}/health || exit 1
-
-ENTRYPOINT ["/usr/local/bin/start-container"]
+ENTRYPOINT ["start-container"]
