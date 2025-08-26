@@ -66,6 +66,9 @@ COPY start-container /usr/local/bin/start-container
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY php.ini /etc/php/8.4/cli/conf.d/99-sail.ini
 COPY artisan /var/www/html/artisan
+RUN "composer install --no-dev --optimize-autoloader"
+RUN "npm install"
+RUN "npm run build"
 RUN chmod +x /usr/local/bin/start-container
 
 EXPOSE 10000/tcp
